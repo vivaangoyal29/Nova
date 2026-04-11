@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Nova News App Prototype</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						fontFamily: {
+							sans: ['"Manrope"', "ui-sans-serif", "system-ui", "sans-serif"],
+						},
+						boxShadow: {
+							card: "0 8px 30px rgba(15, 23, 42, 0.08)",
+						},
+					},
+				},
+			};
+		</script>
+		<link
+			rel="preconnect"
+			href="https://fonts.googleapis.com"
+		/>
+		<link
+			rel="preconnect"
+			href="https://fonts.gstatic.com"
+			crossorigin
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+		<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+		<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+		<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+	</head>
+	<body class="bg-slate-50 text-slate-900 antialiased">
+		<div id="root"></div>
+
+		<script type="text/babel">
+			const { useEffect, useMemo, useState } = React;
+
+			const TOPICS = ["Tech", "Politics", "Business", "Health", "World", "Science"];
+
+			const ARTICLES = [
+				{
+					id: 1,
+					headline: "Global chip makers announce joint AI safety standards",
+					source: "The Ledger",
+					category: "Tech",
+					timestamp: "2h ago",
+					summary:
+						"Major semiconductor firms agreed on shared testing practices for next-gen AI chips. The standards focus on reliability, heat control, and transparent reporting for enterprise buyers.",
+					bias: "Center",
+					biasExplanation: "Center - mostly factual language with balanced expert quotes.",
+					whatHappened:
+						"Five leading chip manufacturers signed a voluntary framework for benchmarking AI hardware safety and stability.",
+					whyItMatters:
+						"Common standards can reduce deployment risk and make product claims easier for regulators and buyers to verify.",
+					keyFacts: [
+						"Applies to data-center and edge AI chips",
+						"Includes quarterly public audit summaries",
+						"First cross-vendor agreement in this segment",
+					],
+					fullUrl: "#",
+				},
+				{
+					id: 2,
+					headline: "City council approves public transit expansion after heated vote",
+					source: "Metro Daily",
+					category: "Politics",
+					timestamp: "4h ago",
+					summary:
+						"A long-debated transit package passed by a narrow margin. Supporters cited commute relief, while critics argued projected costs are understated.",
+					bias: "Left",
+					biasExplanation: "Slight Left - uses emotionally charged language when discussing opposition concerns.",
+					whatHappened:
+						"Council members voted 6-5 to fund two new rail lines and upgrades to existing bus routes.",
+					whyItMatters:
+						"The decision shapes commuting access, municipal debt levels, and neighborhood development for the next decade.",
+					keyFacts: [
+						"Estimated budget: $3.2B over 8 years",
+						"Public referendum expected this fall",
+						"Construction may begin early next year",
+					],
+					fullUrl: "#",
+				},
+				{
+					id: 3,
+					headline: "Central bank signals possible pause in rate changes",
+					source: "Market Brief",
+					category: "Business",
+					timestamp: "6h ago",
+					summary:
+						"Officials indicated inflation progress is improving but not complete. Markets reacted cautiously as analysts adjusted expectations for the next quarter.",
+					bias: "Center",
+					biasExplanation: "Center - neutral framing and broad source diversity.",
+					whatHappened:
+						"In a policy statement, the central bank hinted it may hold rates steady if inflation data continues to cool.",
+					whyItMatters:
+						"Borrowing costs influence household spending, startup funding, and business expansion plans.",
+					keyFacts: [
+						"Inflation fell for three consecutive months",
+						"No immediate rate cut announced",
+						"Next policy meeting is in six weeks",
+					],
+					fullUrl: "#",
+				},
+				{
+					id: 4,
+					headline: "Regional hospitals adopt unified emergency triage protocol",
+					source: "HealthScope",
+					category: "Health",
+					timestamp: "8h ago",
+					summary:
+						"A new shared triage system is rolling out across major hospitals to improve wait times and prioritize severe cases more consistently.",
+					bias: "Right",
+					biasExplanation: "Slight Right - emphasizes operational efficiency over patient access concerns.",
+					whatHappened:
+						"Hospital networks agreed to implement a common emergency triage framework and digital intake process.",
+					whyItMatters:
+						"Standardized triage can reduce variability in urgent care and improve staffing decisions during peak demand.",
+					keyFacts: [
+						"Pilot showed 12% faster urgent case routing",
+						"Rollout starts with 18 hospitals",
+						"Public dashboard planned for performance tracking",
+					],
+					fullUrl: "#",
+				},
+				{
+					id: 5,
+					headline: "Ceasefire talks resume as humanitarian routes reopen",
+					source: "World Wire",
+					category: "World",
+					timestamp: "11h ago",
+					summary:
+						"Negotiators resumed talks after weeks of stalled communication. Aid agencies report limited access to previously blocked supply routes.",
+					bias: "Center",
+					biasExplanation: "Center - cautious wording and clear separation between verified facts and official claims.",
+					whatHappened:
+						"Mediators reconvened delegations for a new negotiation round while temporary aid corridors reopened.",
+					whyItMatters:
+						"The talks affect civilian safety, regional stability, and the pace of humanitarian relief deliveries.",
+					keyFacts: [
+						"Two corridors reopened under monitoring",
+						"No final agreement yet",
+						"UN observers involved in verification",
+					],
+					fullUrl: "#",
+				},
+				{
+					id: 6,
+					headline: "New battery recycling method cuts rare metal waste",
+					source: "Science Line",
+					category: "Science",
+					timestamp: "13h ago",
+					summary:
+						"Researchers reported a process that recovers key battery materials with higher purity and lower energy use than conventional methods.",
+					bias: "Left",
+					biasExplanation: "Slight Left - optimistic framing around policy impact with fewer counterpoints.",
+					whatHappened:
+						"A university-industry team published results from a pilot battery recycling method using low-temperature extraction.",
+					whyItMatters:
+						"Improved recycling could lower supply risks and reduce environmental pressure from new mining demand.",
+					keyFacts: [
+						"Recovery rate reached 91% in pilot tests",
+						"Energy use reduced by around 18%",
+						"Scale-up trial planned for next year",
+					],
+					fullUrl: "#",
+				},
+				{
+					id: 7,
+					headline: "Cloud provider unveils privacy tools for small businesses",
+					source: "Tech Current",
+					category: "Tech",
+					timestamp: "15h ago",
+					summary:
+						"A new package bundles encryption defaults, audit logs, and alerting tools aimed at smaller teams with limited security staff.",
+					bias: "Right",
+					biasExplanation: "Slight Right - highlights market freedom narrative with less attention to regulation arguments.",
+					whatHappened:
+						"The provider launched a simplified privacy toolkit targeted at startups and small-to-mid businesses.",
+					whyItMatters:
+						"Lowering privacy setup complexity can help smaller organizations meet compliance requirements sooner.",
+					keyFacts: [
+						"Includes prebuilt policy templates",
+						"Pricing starts at a low monthly tier",
+						"Available in 12 regions at launch",
+					],
+					fullUrl: "#",
+				},
+				{
+					id: 8,
+					headline: "Shipping costs fall as major ports clear backlogs",
+					source: "Business Post",
+					category: "Business",
+					timestamp: "18h ago",
+					summary:
+						"Port congestion eased across several trade hubs, reducing average container delays and improving delivery timelines for retailers.",
+					bias: "Center",
+					biasExplanation: "Center - reports trend data with minimal editorial language.",
+					whatHappened:
+						"Port authorities reported sustained throughput gains, allowing backlog levels to drop below seasonal averages.",
+					whyItMatters:
+						"Lower logistics pressure can reduce costs for importers and improve product availability for consumers.",
+					keyFacts: [
+						"Average delay down 22% month-over-month",
+						"Fuel surcharge trends remain mixed",
+						"Retail restocking expected to accelerate",
+					],
+					fullUrl: "#",
+				},
+			];
+
+			const biasStyles = {
+				Left: "bg-blue-100 text-blue-700",
+				Center: "bg-slate-200 text-slate-700",
+				Right: "bg-red-100 text-red-700",
+			};
+
+			function BiasBadge({ bias, onClick, count }) {
+				return (
+					<button
+						onClick={onClick}
+						className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold transition hover:opacity-90 ${
+							biasStyles[bias] || biasStyles.Center
+						}`}
+						aria-label={`Bias: ${bias}. Clicked ${count} times`}
+					>
+						<span>{bias}</span>
+						<span className="rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold">{count}</span>
+					</button>
+				);
+			}
+
+			function TopicSelection({ selectedTopics, setSelectedTopics, onContinue }) {
+				function toggleTopic(topic) {
+					setSelectedTopics((prev) =>
+						prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]
+					);
+				}
+
+				return (
+					<div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center p-5">
+						<div className="rounded-3xl bg-white p-6 shadow-card">
+							<p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Nova Setup</p>
+							<h1 className="mt-2 text-2xl font-extrabold leading-tight text-slate-900">Choose topics you care about</h1>
+							<p className="mt-2 text-sm text-slate-600">
+								We will personalize your feed with concise, structured summaries.
+							</p>
+
+							<div className="mt-5 grid grid-cols-2 gap-3">
+								{TOPICS.map((topic) => {
+									const checked = selectedTopics.includes(topic);
+									return (
+										<label
+											key={topic}
+											className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm font-medium transition ${
+												checked
+													? "border-slate-900 bg-slate-900 text-white"
+													: "border-slate-200 bg-slate-50 text-slate-700"
+											}`}
+										>
+											<input
+												type="checkbox"
+												className="h-4 w-4"
+												checked={checked}
+												onChange={() => toggleTopic(topic)}
+											/>
+											{topic}
+										</label>
+									);
+								})}
+							</div>
+
+							<button
+								onClick={onContinue}
+								className="mt-6 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+							>
+								Continue to Feed
+							</button>
+						</div>
+					</div>
+				);
+			}
+
+			function FeedCard({ article, onOpen, onBiasClick, biasClickCount }) {
+				return (
+					<article className="rounded-2xl bg-white p-4 shadow-card">
+						<div className="mb-3 flex items-start justify-between gap-3">
+							<div>
+								<p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{article.category}</p>
+								<p className="text-xs text-slate-400">{article.source}</p>
+							</div>
+							<BiasBadge bias={article.bias} onClick={onBiasClick} count={biasClickCount} />
+						</div>
+
+						<button
+							onClick={onOpen}
+							className="text-left"
+						>
+							<h2 className="text-base font-bold leading-snug text-slate-900">{article.headline}</h2>
+							<p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600">{article.summary}</p>
+							<span className="mt-3 inline-block text-xs font-semibold text-slate-900">Open summary</span>
+						</button>
+					</article>
+				);
+			}
+
+			function HomeFeed({ articles, selectedTopics, setScreen, setActiveArticle, biasClicks, setBiasClicks }) {
+				const filteredArticles = useMemo(() => {
+					if (!selectedTopics.length) {
+						return articles;
+					}
+					return articles.filter((article) => selectedTopics.includes(article.category));
+				}, [articles, selectedTopics]);
+
+				function openArticle(article) {
+					setActiveArticle(article);
+					setScreen("detail");
+				}
+
+				function incrementBias(articleId) {
+					setBiasClicks((prev) => ({
+						...prev,
+						[articleId]: (prev[articleId] || 0) + 1,
+					}));
+				}
+
+				return (
+					<div className="mx-auto min-h-screen w-full max-w-md p-4 pb-10">
+						<header className="mb-5 rounded-2xl bg-white p-4 shadow-card">
+							<p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Nova</p>
+							<h1 className="mt-1 text-xl font-extrabold text-slate-900">Today’s Briefings</h1>
+							<p className="mt-1 text-sm text-slate-600">
+								Trusted summaries with bias indicators, personalized by topic.
+							</p>
+							<div className="mt-3 flex flex-wrap gap-2">
+								{(selectedTopics.length ? selectedTopics : ["All Topics"]).map((topic) => (
+									<span
+										key={topic}
+										className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+									>
+										{topic}
+									</span>
+								))}
+							</div>
+						</header>
+
+						<main className="space-y-4">
+							{filteredArticles.length ? (
+								filteredArticles.map((article) => (
+									<FeedCard
+										key={article.id}
+										article={article}
+										onOpen={() => openArticle(article)}
+										onBiasClick={() => incrementBias(article.id)}
+										biasClickCount={biasClicks[article.id] || 0}
+									/>
+								))
+							) : (
+								<div className="rounded-2xl bg-white p-5 text-center shadow-card">
+									<p className="text-sm font-semibold text-slate-800">No articles match your selected topics.</p>
+									<p className="mt-1 text-sm text-slate-600">Try choosing additional interests on setup reload.</p>
+								</div>
+							)}
+						</main>
+					</div>
+				);
+			}
+
+			function ArticleDetail({ article, onBack, biasClicks, setBiasClicks }) {
+				if (!article) {
+					return null;
+				}
+
+				function incrementDetailBias() {
+					setBiasClicks((prev) => ({
+						...prev,
+						[article.id]: (prev[article.id] || 0) + 1,
+					}));
+				}
+
+				return (
+					<div className="mx-auto min-h-screen w-full max-w-md p-4 pb-10">
+						<button
+							onClick={onBack}
+							className="mb-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-card"
+						>
+							Back to Feed
+						</button>
+
+						<article className="rounded-3xl bg-white p-5 shadow-card">
+							<p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{article.category}</p>
+							<h1 className="mt-2 text-2xl font-extrabold leading-tight text-slate-900">{article.headline}</h1>
+							<p className="mt-2 text-sm text-slate-500">
+								{article.source} · {article.timestamp}
+							</p>
+
+							<div className="mt-5 space-y-4 text-sm leading-relaxed text-slate-700">
+								<section>
+									<h2 className="text-base font-bold text-slate-900">What happened</h2>
+									<p className="mt-1">{article.whatHappened}</p>
+								</section>
+
+								<section>
+									<h2 className="text-base font-bold text-slate-900">Why it matters</h2>
+									<p className="mt-1">{article.whyItMatters}</p>
+								</section>
+
+								<section>
+									<h2 className="text-base font-bold text-slate-900">Key facts</h2>
+									<ul className="mt-1 list-disc space-y-1 pl-5">
+										{article.keyFacts.map((fact) => (
+											<li key={fact}>{fact}</li>
+										))}
+									</ul>
+								</section>
+							</div>
+
+							<section className="mt-5 rounded-2xl bg-slate-50 p-4">
+								<h3 className="text-sm font-bold text-slate-900">Bias Rating</h3>
+								<p className="mt-2 text-sm text-slate-700">{article.biasExplanation}</p>
+								<div className="mt-3">
+									<BiasBadge
+										bias={article.bias}
+										onClick={incrementDetailBias}
+										count={biasClicks[article.id] || 0}
+									/>
+								</div>
+							</section>
+
+							<a
+								href={article.fullUrl}
+								className="mt-6 inline-block text-sm font-semibold text-slate-900 underline decoration-2 underline-offset-4"
+							>
+								Read full article
+							</a>
+						</article>
+					</div>
+				);
+			}
+
+			function LoadingScreen() {
+				return (
+					<div className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center p-6">
+						<div className="w-full rounded-3xl bg-white p-6 shadow-card">
+							<div className="animate-pulse space-y-4">
+								<div className="h-3 w-24 rounded bg-slate-200"></div>
+								<div className="h-7 w-3/4 rounded bg-slate-200"></div>
+								<div className="h-20 w-full rounded-xl bg-slate-200"></div>
+								<div className="h-20 w-full rounded-xl bg-slate-200"></div>
+							</div>
+							<p className="mt-4 text-sm font-medium text-slate-500">Loading personalized feed...</p>
+						</div>
+					</div>
+				);
+			}
+
+			function App() {
+				const [screen, setScreen] = useState("loading");
+				const [selectedTopics, setSelectedTopics] = useState([]);
+				const [activeArticle, setActiveArticle] = useState(null);
+				const [biasClicks, setBiasClicks] = useState({});
+
+				useEffect(() => {
+					const timer = setTimeout(() => {
+						setScreen("topics");
+					}, 1100);
+					return () => clearTimeout(timer);
+				}, []);
+
+				function continueToFeed() {
+					setScreen("loading");
+					setTimeout(() => {
+						setScreen("feed");
+					}, 900);
+				}
+
+				return (
+					<div className="min-h-screen bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100">
+						{screen === "loading" && <LoadingScreen />}
+
+						{screen === "topics" && (
+							<TopicSelection
+								selectedTopics={selectedTopics}
+								setSelectedTopics={setSelectedTopics}
+								onContinue={continueToFeed}
+							/>
+						)}
+
+						{screen === "feed" && (
+							<HomeFeed
+								articles={ARTICLES}
+								selectedTopics={selectedTopics}
+								setScreen={setScreen}
+								setActiveArticle={setActiveArticle}
+								biasClicks={biasClicks}
+								setBiasClicks={setBiasClicks}
+							/>
+						)}
+
+						{screen === "detail" && (
+							<ArticleDetail
+								article={activeArticle}
+								onBack={() => setScreen("feed")}
+								biasClicks={biasClicks}
+								setBiasClicks={setBiasClicks}
+							/>
+						)}
+					</div>
+				);
+			}
+
+			ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+		</script>
+	</body>
+</html>
